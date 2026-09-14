@@ -1,5 +1,5 @@
 resource "aws_lb" "app_lb" {
-  name               = "app-load-balancer"
+  name               = "${var.environment}-app-lb"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
@@ -9,12 +9,12 @@ resource "aws_lb" "app_lb" {
   idle_timeout               = 60
 
   tags = {
-    Name = "app-load-balancer"
+    Name = "${var.environment}-app-lb"
   }
 }
 
 resource "aws_lb_target_group" "app_tg" {
-  name     = "app-target-group"
+  name     = "${var.environment}-app-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
@@ -28,7 +28,7 @@ resource "aws_lb_target_group" "app_tg" {
   }
 
   tags = {
-    Name = "app-target-group"
+    Name = "${var.environment}-app-tg"
   }
 }
 
