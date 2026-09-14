@@ -1,5 +1,5 @@
 resource "aws_launch_template" "app" {
-  name_prefix   = "app-launch-template-"
+  name_prefix   = "${var.environment}-app-launch-template-"
   image_id      = var.ami_id
   instance_type = var.instance_type
 
@@ -23,13 +23,13 @@ resource "aws_launch_template" "app" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = "app-instance"
+      Name = "${var.environment}-app-instance"
     }
   }
 }
 
 resource "aws_autoscaling_group" "app_asg" {
-  name                      = "app-asg"
+  name                      = "${var.environment}-app-asg"
   min_size                  = var.min_size
   max_size                  = var.max_size
   desired_capacity          = var.desired_capacity
@@ -45,14 +45,14 @@ resource "aws_autoscaling_group" "app_asg" {
 
   tag {
     key                 = "Name"
-    value               = "app-instance"
+    value               = "${var.environment}-app-instance"
     propagate_at_launch = true
   }
 }
 
 # Simple Scaling Policy - Scale Out
 resource "aws_autoscaling_policy" "scale_out" {
-  name                   = "scale-out"
+  name                   = "${var.environment}-scale-out"
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
@@ -61,7 +61,7 @@ resource "aws_autoscaling_policy" "scale_out" {
 
 # Simple Scaling Policy - Scale In
 resource "aws_autoscaling_policy" "scale_in" {
-  name                   = "scale-in"
+  name                   = "${var.environment}-scale-in"
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
@@ -70,7 +70,7 @@ resource "aws_autoscaling_policy" "scale_in" {
 
 # Target Tracking Scaling Policy - CPU Utilization
 resource "aws_autoscaling_policy" "target_tracking" {
-  name                   = "target-tracking-policy"
+  name                   = "${var.environment}-target-tracking-policy"
   autoscaling_group_name = aws_autoscaling_group.app_asg.name
   policy_type            = "TargetTrackingScaling"
 
@@ -84,7 +84,7 @@ resource "aws_autoscaling_policy" "target_tracking" {
 
 # CloudWatch Alarm for High CPU
 resource "aws_cloudwatch_metric_alarm" "high_cpu" {
-  alarm_name          = "high-cpu-utilization"
+  alarm_name          = "${var.environment}-high-cpu-utilization"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
@@ -102,7 +102,7 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu" {
 
 # CloudWatch Alarm for Low CPU
 resource "aws_cloudwatch_metric_alarm" "low_cpu" {
-  alarm_name          = "low-cpu-utilization"
+  alarm_name          = "${var.environment}-low-cpu-utilization"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "2"
   metric_name         = "CPUUtilization"
